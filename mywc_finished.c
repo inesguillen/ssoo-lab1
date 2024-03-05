@@ -78,36 +78,35 @@ int main(int argc, char *argv[])
 	int siz = 0;
 
 	// While we haven't read all the content in the file
-	while ((siz = read(fp, pline, 1000)) > 0)
+	siz = read(fp, pline, 1000);
+	int bword = FALSE;
+
+	// Read byte by byte
+	for(int i = 0; i < 1000 && i < siz; i++)
 	{
-		int bword = FALSE;
-
-		// Read byte by byte
-		for(int i = 0; i < 1000 && i < siz; i++)
+		char c = *(pline+i);
+		
+		// Check the char we are reading
+		if (c != ' ' && c != '\t' && c != '\n')
 		{
-			char c = *(pline+i);
-			
-			// Check the char we are reading
-			if (c != ' ' && c != '\t' && c != '\n')
-			{
-				// We add a word to the words' counter and make boolean variable TRUE
-				if (!bword)
-				{	
-					nwords++;
-					bword = TRUE;
-				}
-			}	
-			else
-			{
-				// Add a line in the lines' counter when we find a '\n'
-				if (c == '\n')	nlines++;
-				bword = FALSE;
+			// We add a word to the words' counter and make boolean variable TRUE
+			if (!bword)
+			{	
+				nwords++;
+				bword = TRUE;
 			}
-
-			// Always add a byte when we read a new char
-			nbytes++;
+		}	
+		else
+		{
+			// Add a line in the lines' counter when we find a '\n'
+			if (c == '\n')	nlines++;
+			bword = FALSE;
 		}
+
+		// Always add a byte when we read a new char
+		nbytes++;
 	}
+	
 	free(pline); // Free space
 	close(fp); // Close file
 	
