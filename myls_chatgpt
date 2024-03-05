@@ -1,0 +1,46 @@
+#include <stdio.h>
+#include <dirent.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+#define PATH_MAX 4096
+
+int myls(const char *dir_path) {
+    DIR *dir;
+    struct dirent *entry;
+    char actual_path[PATH_MAX];
+
+    // Get the actual path to use
+    if (dir_path == NULL) {
+        if (getcwd(actual_path, sizeof(actual_path)) == NULL) {
+            perror("getcwd");
+            return -1;
+        }
+    } else {
+        strncpy(actual_path, dir_path, sizeof(actual_path));
+        actual_path[sizeof(actual_path) - 1] = '\0';  // Ensure null termination
+    }
+
+    // Open the directory
+    dir = opendir(actual_path);
+    if (dir == NULL) {
+        perror("opendir");
+        return -1;
+    }
+
+    // Read and print directory entries
+    while ((entry = readdir(dir)) != NULL) {
+        printf("%s\n", entry->d_name);
+    }
+
+    // Close the directory
+    closedir(dir);
+
+    return 0;
+}
+
+int main(int argc, char *argv[]) {
+    const char *dir_path = (argc > 1) ? argv[1] : NULL;
+    return myls(dir_path);
+}
