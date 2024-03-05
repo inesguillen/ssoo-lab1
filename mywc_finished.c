@@ -9,6 +9,10 @@
 #define FALSE 0
 #define TRUE !FALSE
 
+// size read buffer
+#define SIZ_MAX 1000
+
+
 /* ERROR DETECTOR FUNCTION */
 int gerror(int nParameter, char *Parameter[])
 {
@@ -40,8 +44,9 @@ int gerror(int nParameter, char *Parameter[])
         }
 
 	// If there is no error, finish
-        return 0;
+    return 0;
 }
+
 
 /* MAIN FUNCTION */
 int main(int argc, char *argv[])
@@ -68,49 +73,52 @@ int main(int argc, char *argv[])
 	char *pline;
 
 	// Save memory space in variable 'pline'
-	pline = malloc(1000 * sizeof(char));
+	pline = malloc(SIZ_MAX * sizeof(char));
 
 	// If there is memory overflow return -1, error
 	if (!pline) return -1;
 
-	memset(pline,'\0', 1000);
+	memset(pline,'\0', SIZ_MAX);
 	nlines = nwords = nbytes = 0;
 	int siz = 0;
 
-	// While we haven't read all the content in the file
-	siz = read(fp, pline, 1000);
+	// Initialize variable outside of the loop to avoid buffer's overflows
 	int bword = FALSE;
 
-	// Read byte by byte
-	for(int i = 0; i < 1000 && i < siz; i++)
+	// While we haven't read all the content in the file
+	// We need the while loop to still be able to read the file if its size is bigger than the buffer
+	while ((siz = read(fp, pline, SIZ_MAX)) > 0)
 	{
-		char c = *(pline+i);
-		
-		// Check the char we are reading
-		if (c != ' ' && c != '\t' && c != '\n')
+		// Read byte by byte
+		for(int i = 0; i < SIZ_MAX && i < siz; i++)
 		{
-			// We add a word to the words' counter and make boolean variable TRUE
-			if (!bword)
-			{	
-				nwords++;
-				bword = TRUE;
+			char c = *(pline+i);
+			
+			// Check the char we are reading
+			if (c != ' ' && c != '\t' && c != '\n')
+			{
+				// We add a word to the words' counter and make boolean variable TRUE
+				if (!bword)
+				{	
+					nwords++;
+					bword = TRUE;
+				}
+			}	
+			else
+			{
+				// Add a line in the lines' counter when we find a '\n'
+				if (c == '\n')	nlines++;
+				bword = FALSE;
 			}
-		}	
-		else
-		{
-			// Add a line in the lines' counter when we find a '\n'
-			if (c == '\n')	nlines++;
-			bword = FALSE;
-		}
 
-		// Always add a byte when we read a new char
-		nbytes++;
+			// Always add a byte when we read a new char
+			nbytes++;
+		}
 	}
-	
 	free(pline); // Free space
 	close(fp); // Close file
 	
 	// Print result
-	printf(" %d %d %d %s\n", nlines, nwords, nbytes, argv[1]);
+	printf("%d %d %d %s\n", nlines, nwords, nbytes, argv[1]);
 	return 0;
 }
