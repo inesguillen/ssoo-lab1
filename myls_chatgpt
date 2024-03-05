@@ -3,8 +3,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <linux/limits.h>
 
-#define PATH_MAX 4096
+//#define PATH_MAX 4096
 
 int myls(const char *dir_path) {
     DIR *dir;
