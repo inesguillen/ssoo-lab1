@@ -9,8 +9,8 @@
 #define FALSE 0
 #define TRUE !FALSE
 
-// size read buffer
 #define SIZ_MAX 1000
+
 
 
 /* ERROR DETECTOR FUNCTION */
@@ -27,26 +27,32 @@ int gerror(int nParameter, char *Parameter[])
 
 		// In case that we have enough arguments, but still there is an error
 		if (nParameter > 0)
-                {
+        {
 			// We read each parameter and check which is the error
-                        for (int i = 0; i < nParameter; i++)
-                        {
-        	                if (i > 0) size += sprintf(format + size, " %s", Parameter[i]);
-	                        else size = sprintf(format,"%s", Parameter[i]);
-                	        if (i+1 < nParameter) size += sprintf(format + size, "%c", ':');
-                        }
-                }
-		
-		// Print the error and return -1
-                if (nParameter > 0) printf("%s: %s\n", format, strerror(errno));
-                else printf("%s\n", strerror(errno));
-                return -1;
+            for (int i = 0; i < nParameter; i++)
+            {
+        	    if (i > 0) size += sprintf(format + size, " %s", Parameter[i]);
+	            else size = sprintf(format,"%s", Parameter[i]);
+                if (i+1 < nParameter) size += sprintf(format + size, "%c", ':');
+            }
+            
+			// If we have a system error, print error
+            if (errno > 0)
+                printf("%s: %s\n", format, strerror(errno));
+
+            else
+                printf("%s\n", format);
         }
+    	else
+        	printf("%s\n",  strerror(errno));
+		
+		// Return-1 and finish
+		return -1;
+    }
 
 	// If there is no error, finish
     return 0;
 }
-
 
 /* MAIN FUNCTION */
 int main(int argc, char *argv[])
@@ -82,11 +88,9 @@ int main(int argc, char *argv[])
 	nlines = nwords = nbytes = 0;
 	int siz = 0;
 
-	// Initialize variable outside of the loop to avoid buffer's overflows
-	int bword = FALSE;
+	 int bword = FALSE;
 
 	// While we haven't read all the content in the file
-	// We need the while loop to still be able to read the file if its size is bigger than the buffer
 	while ((siz = read(fp, pline, SIZ_MAX)) > 0)
 	{
 		// Read byte by byte
@@ -119,6 +123,6 @@ int main(int argc, char *argv[])
 	close(fp); // Close file
 	
 	// Print result
-	printf("%d %d %d %s\n", nlines, nwords, nbytes, argv[1]);
+	printf(" %d %d %d %s\n", nlines, nwords, nbytes, argv[1]);
 	return 0;
 }
