@@ -122,6 +122,6 @@ int main(int argc, char *argv[])
 	close(fp); // Close file
 	
 	// Print result
-	printf(" %d %d %d %s\n", nlines, nwords, nbytes, argv[1]);
+	printf("%d %d %d %s\n", nlines, nwords, nbytes, argv[1]);
 	return 0;
 }
