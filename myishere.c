@@ -10,15 +10,12 @@
 #include <linux/limits.h>
 
 
-
-
-
 /* ERROR DETECTOR FUNCTION */
 int gerror(int nParameter, char *Parameter[])
 {
 	char format[1000] = {0};
 	int size = 0;
-
+	
 	// If there is an error
 	if (errno > 0 || nParameter < 0)
 	{
@@ -27,23 +24,32 @@ int gerror(int nParameter, char *Parameter[])
 
 		// In case that we have enough arguments, but still there is an error
 		if (nParameter > 0)
-		{
+        {
 			// We read each parameter and check which is the error
-			for (int i = 0; i < nParameter; i++)
-			{
-				if (i > 0) size += sprintf(format + size, " %s", Parameter[i]);
-				else size = sprintf(format, "%s", Parameter[i]);
-				if (i+1 < nParameter) size += sprintf(format + size, "%c", ':');
-			}
-		}
-		// Print the error and return -1
-		if (nParameter > 0) printf("%s: %s\n", format, strerror(errno));
-		else printf("%s\n", strerror(errno));
+            for (int i = 0; i < nParameter; i++)
+            {
+        	    if (i > 0) size += sprintf(format + size, " %s", Parameter[i]);
+	            else size = sprintf(format,"%s", Parameter[i]);
+                if (i+1 < nParameter) size += sprintf(format + size, "%c", ':');
+            }
+            
+			// If we have a system error, print error
+            if (errno > 0)
+                printf("%s: %s\n", format, strerror(errno));
+            else
+                printf("%s\n", format);
+        }
+    	else
+        	printf("%s\n",  strerror(errno));
+		
+		// Return-1 and finish
 		return -1;
-	}
+    }
+
 	// If there is no error, finish
     return 0;
 }
+
 
 int main(int argc, char *argv[]) {
 	DIR *dir;

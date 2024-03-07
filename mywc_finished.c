@@ -39,7 +39,6 @@ int gerror(int nParameter, char *Parameter[])
 			// If we have a system error, print error
             if (errno > 0)
                 printf("%s: %s\n", format, strerror(errno));
-
             else
                 printf("%s\n", format);
         }

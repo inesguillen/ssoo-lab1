@@ -7,6 +7,7 @@
 #include <linux/limits.h>
 #include <errno.h>
 
+
 /* ERROR DETECTOR FUNCTION */
 int gerror(int nParameter, char *Parameter[])
 {
@@ -21,19 +22,25 @@ int gerror(int nParameter, char *Parameter[])
 
 		// In case that we have enough arguments, but still there is an error
 		if (nParameter > 0)
-		{
+        {
 			// We read each parameter and check which is the error
-			for (int i = 0; i < nParameter; i++)
-			{
-				if (i > 0) size += sprintf(format + size, " %s", Parameter[i]);
-				else size = sprintf(format,"%s", Parameter[i]);
-				if (i+1 < nParameter) size += sprintf(format + size, "%c", ':');
-			}
-		}
+            for (int i = 0; i < nParameter; i++)
+            {
+        	    if (i > 0) size += sprintf(format + size, " %s", Parameter[i]);
+	            else size = sprintf(format,"%s", Parameter[i]);
+                if (i+1 < nParameter) size += sprintf(format + size, "%c", ':');
+            }
+            
+			// If we have a system error, print error
+            if (errno > 0)
+                printf("%s: %s\n", format, strerror(errno));
+            else
+                printf("%s\n", format);
+        }
+    	else
+        	printf("%s\n",  strerror(errno));
 		
-		// Print the error and return -1
-		if (nParameter > 0) printf("%s: %s\n", format, strerror(errno));
-		else printf("%s\n", strerror(errno));
+		// Return-1 and finish
 		return -1;
     }
 
