@@ -1,7 +1,6 @@
 //P1-SSOO-23/24
 
 #include <stdio.h>
-#include <sys/types.h>
 #include <dirent.h>
 #include <errno.h>
 #include <string.h>
