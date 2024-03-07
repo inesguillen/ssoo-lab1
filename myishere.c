@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include <linux/limits.h>
 
+#define FALSE 0
+#define TRUE !FALSE
 
 /* ERROR DETECTOR FUNCTION */
 int gerror(int nParameter, char *Parameter[])
@@ -49,7 +51,6 @@ int gerror(int nParameter, char *Parameter[])
     return 0;
 }
 
-
 int main(int argc, char *argv[]) {
 	DIR *dir;
 
@@ -61,48 +62,42 @@ int main(int argc, char *argv[]) {
 	// If there are not enough arguments, return -1
 	if (argc < 3)
 	{
-		printf("Not enough arguments\n");
-		return -1;
-
+		const char *error[]={argv[0], "Not enough arguments"};
+		return gerror(-2, (char **)error);
 	}
-	
+
 	// Copy the path and name of file to their respective variables
 	strcpy(actual_path, argv[1]);
 	strcpy(filename, argv[2]);
 
-	// Open the directory
+	// If we cannot open the directory
 	if ((dir = opendir(actual_path)) == NULL)
+	{
+		// Return error using gerror function
+		return gerror(argc, (char **)argv);
+	}
+
+    int bfound=FALSE;
+
+    // Read directory entries and try to find the asked file.
+    while ((entry = readdir(dir)) != NULL && bfound == FALSE)  // Iterate until no more files exist
     {
-    	// We format the error to return the same messages as ls command
-		char erro[PATH_MAX + 25] = {0};
-		sprintf(erro,"cannot access '%s'", argv[1]);
-	
-		// assign in the name file passed as argument the message we want to return
-		argv[1] = erro;
-	
-		// Use function gerror and finish
-        return gerror(argc, (char **)argv);
+		// If the name file matches with the one we are currently reading
+        if (!strcmp(entry->d_name, filename)) bfound = TRUE;
     }
 
-	// Read directory entries and try to find the asked file.
-    while ((entry = readdir(dir)) != NULL)  // Iterate until no more files exist
-	{
-        if (!strcmp(entry->d_name, filename))
-		{
-			printf("File %s is in directory %s\n", filename, dir);
-	    // If we cannot close the directory, return error
-    	if (closedir(dir) == -1) 
-		{
-			return gerror(-1, (char **)"closedir");
-		}		
-			return 0;
-		}
+	// Print correspondent messages
+    if (!bfound)
+        printf("File %s is not in directory %s\n", filename, actual_path);
+    else
+        printf("File %s is in directory %s\n", filename, actual_path);
+
+    // If we cannot close the directory, return error
+    if (closedir(dir) == -1)
+    {
+		const char *error[]={argv[0], "closedir"};
+		return gerror(-1, (char **) error);
     }
-	printf("File %s is not in directory %s\n", filename, dir);
-	// If we cannot close the directory, return error
-    if (closedir(dir) == -1) 
-	{
-		return gerror(-1, (char **)"closedir");
-	}		
+
 	return 0;
 }
